@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mofresh"
-version = "0.1.0"
+version = "0.2.1"
 authors = [
     { name = "Vincent Warmerdam" },
 ]
@@ -27,7 +27,8 @@ classifiers = [
 dev = [
     "pytest",
     "marimo",
-    "polars"
+    "polars",
+    "mohtml",
 ]
 
 [project.urls]

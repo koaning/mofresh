@@ -1,6 +1,6 @@
 import altair as alt
 import polars as pl
-from mofresh import altair2svg, refresh_altair, refresh_matplotlib
+from mofresh import altair2svg, refresh_altair
 
 def test_version():
     from mofresh import __version__
