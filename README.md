@@ -1,6 +1,6 @@
 # Mofresh
 
-A Python package for fresh data processing.
+Widgets that can automatically refresh
 
 ## Installation
 
