@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mofresh"
+version = "0.1.0"
+authors = [
+    { name = "Vincent Warmerdam" },
+]
+description = "A Python package for fresh data processing"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "anywidget",
+    "altair", 
+    "matplotlib",
+    "vl-convert-python",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "marimo",
+    "polars"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/vincentwarmerdam/mofresh"
+"Bug Tracker" = "https://github.com/vincentwarmerdam/mofresh/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
