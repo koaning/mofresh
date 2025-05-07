@@ -1,3 +1,12 @@
+<p align="right">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/koaning/mofresh/main/fresh-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/koaning/mofresh/main/fresh-light.png">
+    <img alt="Mofresh logo" src="https://raw.githubusercontent.com/koaning/mofresh/main/fresh-light.png" width="150">
+  </picture>
+</p>
+
+
 # Mofresh
 
 Widgets that can automatically refresh
