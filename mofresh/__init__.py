@@ -35,7 +35,7 @@ def altair2svg(chart):
         return (Path(tmp_dir) / "example.svg").read_text()
 
 
-class SVGRefreshWidget(anywidget.AnyWidget):
+class HTMLRefreshWidget(anywidget.AnyWidget):
     _esm = """
     function render({ model, el }) {
       let elem = () => model.get("html");

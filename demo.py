@@ -29,17 +29,17 @@ def _():
 def _(mo):
     mo.md(
         r"""
-    ## `mofresh` demo
+    # `mofresh` demo
 
     The goal of this project is to offer a few tools that make it easy for you to refresh charts in marimo. This can be useful during a PyTorch training loop where you might want to update a chart on every iteration, but there are many other use-cases for this too. 
 
-    ### How it works 
+    ## How it works 
 
     The trick to get updating charts to work is to leverage [anywidget](https://anywidget.dev/). These widgets have a loop that is independant of the marimo cells which means that you can update a chart even if the cell hasn't completed running. The goal of this library is to make it easy to use this pattern by giving you a few utilities. 
 
-    ### Updating `matplotlib` charts
+    ## Updating `matplotlib` charts
 
-    The easiest way to update matplotlib charts is to first write a function that can generate a chart. The most common way to use matplotlib is to use syntax like `plt.plot(...)` followed by a `plt.show(...)` and the best way to capture all of these layers is to wrap them all ina single function. Once you have such a function, you can use the `@refresh_matplotlib` decorator to turn this function into something that we can use in a refreshable-chart. 
+    The easiest way to update matplotlib charts is to first write a function that can generate a chart. The most common way to use matplotlib is to use syntax like `plt.plot(...)` followed by a `plt.show(...)` and the best way to capture all of these layers is to wrap them all ina single function. Once you have such a function, you can use the `@refresh_matplotlib` decorator to turn this function into something that we can use in a refreshable-chart.
     """
     )
     return
@@ -73,7 +73,7 @@ def _(cumsum_linechart):
 
 @app.cell
 def _(mo):
-    mo.md(r"""Having a static image is great, but we want dynamic images! That's where our `ImageRefreshWidget` comes in. """)
+    mo.md(r"""Having a static image is great, but we want dynamic images! That's where our `ImageRefreshWidget` comes in.""")
     return
 
 
@@ -111,7 +111,7 @@ def _(cumsum_linechart, widget):
 def _(mo):
     mo.md(
         r"""
-    ### Updating `altair` charts
+    ## Updating `altair` charts
 
     This library can also deal with altair charts. This works by turning the chart into an SVG. This is a static representation that does not require any javascript to run, which means that we can apply a similar pattern as before!
     """
@@ -122,12 +122,12 @@ def _(mo):
 @app.cell
 def _():
     import altair as alt
-    from mofresh import refresh_altair, SVGRefreshWidget, altair2svg
-    return SVGRefreshWidget, alt, refresh_altair
+    from mofresh import refresh_altair, HTMLRefreshWidget, altair2svg
+    return HTMLRefreshWidget, alt, refresh_altair
 
 
 @app.cell
-def _(SVGRefreshWidget, alt, mo, np, pl, refresh_altair):
+def _(HTMLRefreshWidget, alt, mo, np, pl, refresh_altair):
     @refresh_altair
     def altair_cumsum_chart(data):
         df = pl.DataFrame({
@@ -135,14 +135,14 @@ def _(SVGRefreshWidget, alt, mo, np, pl, refresh_altair):
         })
         return alt.Chart(df).mark_line().encode(x="x", y="y")
 
-    svg_widget = mo.ui.anywidget(SVGRefreshWidget(svg=altair_cumsum_chart([1, 2])))
+    svg_widget = mo.ui.anywidget(HTMLRefreshWidget(html=altair_cumsum_chart([1, 2])))
     svg_widget
     return altair_cumsum_chart, svg_widget
 
 
 @app.cell
 def _(mo):
-    mo.md(r"""Unlike matplotlib charts though, altair is actually designed to give you objects back. That means that you don't need to use a decorated function for the update, you can also just convert the altair chart to SVG directly. This library supports utilities for both patterns. """)
+    mo.md(r"""Unlike matplotlib charts though, altair is actually designed to give you objects back. That means that you don't need to use a decorated function for the update, you can also just convert the altair chart to SVG directly. This library supports utilities for both patterns.""")
     return
 
 
@@ -165,7 +165,35 @@ def _(altair_cumsum_chart, random, svg_widget, time):
 
 
 @app.cell
-def _():
+def _(mo):
+    mo.md(
+        r"""
+    ## Oh ... one more thing about that `HTMLRefreshWidget`
+
+    We are injecting html now into that widget to allow us to draw altair charts. But why stop there? We can put in any HTML that we like!
+    """
+    )
+    return
+
+
+@app.cell
+def _(HTMLRefreshWidget, mo):
+    html_widget = mo.ui.anywidget(HTMLRefreshWidget())
+    html_widget
+    return (html_widget,)
+
+
+@app.cell
+def _(html_widget, time):
+    for _i in range(10):
+        html_widget.html = f"<p>Counting {_i}</p>"
+        time.sleep(0.1)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""Enjoy!""")
     return
 
 
