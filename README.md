@@ -1,9 +1,5 @@
 <div style="float: right;">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="imgs/fresh-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="imgs/fresh-light.png">
-    <img alt="Mofresh logo" src="imgs/fresh-light.png" width="150">
-  </picture>
+    <img alt="Mofresh logo" src="imgs/fresh-green.png" width="150">
 </div>
 
 
