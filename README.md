@@ -1,6 +1,4 @@
-<div style="float: right;">
-    <img alt="Mofresh logo" src="imgs/fresh-green.png" width="150">
-</div>
+<img src="imgs/fresh-green.png" width=125 height=125 align="right" style="z-index: 9999;">
 
 
 ### Mofresh
