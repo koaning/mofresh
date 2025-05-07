@@ -24,6 +24,6 @@ Effectively that means you can expect to see stuff like this in marimo:
 
 ## Live demo 
 
-If you want to dive deep and experience the API, the best way is to explore the live notebook that hosted on [Github pages](https://koaning.github.io/mofresh/). 
+If you want to dive deep and experience the API, the best way is to explore the live notebook on [Github pages](https://koaning.github.io/mofresh/). 
 
 [Go to live docs.](https://koaning.github.io/mofresh/)
