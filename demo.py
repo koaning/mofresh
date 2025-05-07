@@ -2,172 +2,128 @@
 # requires-python = ">=3.12"
 # dependencies = [
 #     "altair==5.5.0",
-#     "anthropic==0.50.0",
-#     "anywidget==0.9.18",
 #     "marimo",
 #     "matplotlib==3.10.1",
+#     "mofresh==0.1.0",
 #     "mohtml==0.1.7",
 #     "numpy==2.2.5",
 #     "polars==1.29.0",
-#     "pyarrow==18.1.0",
-#     "pyobsplot==0.5.3.2",
-#     "traitlets==5.14.3",
-#     "vl-convert-python==1.7.0",
 # ]
 # ///
 
 import marimo
 
-__generated_with = "0.13.3"
-app = marimo.App(width="full")
+__generated_with = "0.13.6"
+app = marimo.App(width="medium")
 
 
 @app.cell
 def _():
     import marimo as mo
-    return (mo,)
+    import polars as pl
+    import numpy as np
+    return mo, np, pl
 
 
 @app.cell
-def _():
-    import io 
-    import base64
-    import time
-    import random
-    import anywidget
-    import matplotlib 
-    import matplotlib.pylab as plt 
-    import numpy as np
-    import traitlets
-    import altair as alt
-    import polars as pl
-    from tempfile import TemporaryDirectory
-    from pathlib import Path
+def _(mo):
+    mo.md(
+        r"""
+    ## `mofresh` demo
 
-    # This is necessary to prevent matplotlib from causing memory leaks
-    # https://stackoverflow.com/questions/31156578/matplotlib-doesnt-release-memory-after-savefig-and-close
-    matplotlib.use('Agg')
+    The goal of this project is to offer a few tools that make it easy for you to refresh charts in marimo. This can be useful during a PyTorch training loop where you might want to update a chart on every iteration, but there are many other use-cases for this too. 
+
+    ### How it works 
+
+    The trick to get updating charts to work is to leverage [anywidget](https://anywidget.dev/). These widgets have a loop that is independant of the marimo cells which means that you can update a chart even if the cell hasn't completed running. The goal of this library is to make it easy to use this pattern by giving you a few utilities. 
+
+    ### Updating `matplotlib` charts
+
+    The easiest way to update matplotlib charts is to first write a function that can generate a chart. The most common way to use matplotlib is to use syntax like `plt.plot(...)` followed by a `plt.show(...)` and the best way to capture all of these layers is to wrap them all ina single function. Once you have such a function, you can use the `@refresh_matplotlib` decorator to turn this function into something that we can use in a refreshable-chart. 
+    """
+    )
+    return
 
 
-    def refresh_matplotlib(func):
-        def wrapper(*args, **kwargs):
-            # Reset the figure to prevent accumulation. Maybe we need a setting for this?
-            fig = plt.figure()
-
-            # Run function as normal
-            func(*args, **kwargs)
-
-            # Store it as base64 and put it into an image.
-            my_stringIObytes = io.BytesIO()
-            plt.savefig(my_stringIObytes, format='jpg')
-            my_stringIObytes.seek(0)
-            my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
-
-            # Close the figure to prevent memory leaks
-            plt.close(fig)
-            plt.close('all')
-            return f'data:image/jpg;base64, {my_base64_jpgData}'
-        return wrapper
+@app.cell
+def _(np):
+    import matplotlib.pylab as plt
+    from mofresh import refresh_matplotlib
 
     @refresh_matplotlib
     def cumsum_linechart(data):
         y = np.cumsum(data)
         plt.plot(np.arange(len(y)), y)
-    return (
-        Path,
-        TemporaryDirectory,
-        alt,
-        anywidget,
-        cumsum_linechart,
-        np,
-        pl,
-        random,
-        time,
-        traitlets,
-    )
+    return (cumsum_linechart,)
 
 
 @app.cell
-def _():
-    # from mohtml import img 
-
-    # img(src=cumsum_linechart([1, 2, 3, 2]))
+def _(mo):
+    mo.md(r"""The decorator takes the matplotlib image and turns it into a base64 encoded string that can be plotted by `<img>` tags in html. You can see this for yourself in the example below. The `img(src=...)` function call in `mohtml` is effectively a bit of syntactic sugar around `<img src="...">`.""")
     return
 
 
 @app.cell
-def _(anywidget, traitlets):
-    class ImageRefreshWidget(anywidget.AnyWidget):
-        _esm = """
-        function render({ model, el }) {
-          let src = () => model.get("src");
-          let image = document.createElement("img");
-          image.src = src();
-          model.on("change:src", () => {
-            image.src = src();
-          });
-          el.appendChild(image);
-        }
-        export default { render };
-        """
-        src = traitlets.Unicode().tag(sync=True)
-    return (ImageRefreshWidget,)
+def _(cumsum_linechart):
+    from mohtml import img 
+
+    img(src=cumsum_linechart([1, 2, 3, 2]))
+    return
 
 
 @app.cell
-def _(ImageRefreshWidget, cumsum_linechart, mo):
+def _(mo):
+    mo.md(r"""Having a static image is great, but we want dynamic images! That's where our `ImageRefreshWidget` comes in. """)
+    return
+
+
+@app.cell
+def _(cumsum_linechart, mo):
+    from mofresh import ImageRefreshWidget
+
     widget = mo.ui.anywidget(ImageRefreshWidget(src=cumsum_linechart([1,2,3,4])))
     widget
     return (widget,)
 
 
 @app.cell
-def _(cumsum_linechart, random, time, widget):
-    data = [random.random() - 0.5]
-
-    for i in range(20):
-        data += [random.random() - 0.5]
-        widget.src = cumsum_linechart(data)
-
-        time.sleep(0.2)
+def _(mo):
+    mo.md(r"""When you re-run the cell below you should see that the widget updates. This works because the widget knows how to respond to a change to the `widget.src` property. You only need to make sure that you pass along a base64 string that html images can handle, which is covered by the decorator that we applied earlier.""")
     return
 
 
 @app.cell
-def _(Path, TemporaryDirectory, anywidget, traitlets):
-    def altair2svg(chart):
-        # Need to write to disk to get SVG, filetype determines how to store it
-        # have not found an api in altair that can return a variable in memory
-        with TemporaryDirectory() as tmp_dir:
-            chart.save(Path(tmp_dir) / "example.svg")
-            return (Path(tmp_dir) / "example.svg").read_text()
+def _(cumsum_linechart, widget):
+    import random 
+    import time 
 
-    class SVGRefreshWidget(anywidget.AnyWidget):
-        _esm = """
-        function render({ model, el }) {
-          let elem = () => model.get("svg");
-          let div = document.createElement("div");
-          div.innerHTML = elem();
-          model.on("change:svg", () => {
-            div.innerHTML = elem();
-          });
-          el.appendChild(div);
-        }
-        export default { render };
-        """
-        svg = traitlets.Unicode().tag(sync=True)
-    return SVGRefreshWidget, altair2svg
+    data = [random.random() - 0.5]
+
+    for i in range(20):
+        data += [random.random() - 0.5]
+        # This one line over here causes the update!
+        widget.src = cumsum_linechart(data)
+        time.sleep(0.2)
+    return random, time
 
 
 @app.cell
-def _(altair2svg):
-    def refresh_altair(func):
-        def wrapper(*args, **kwargs):
-            # Run function as normal
-            altair_chart = func(*args, **kwargs)
-            return altair2svg(altair_chart)
-        return wrapper
-    return (refresh_altair,)
+def _(mo):
+    mo.md(
+        r"""
+    ### Updating `altair` charts
+
+    This library can also deal with altair charts. This works by turning the chart into an SVG. This is a static representation that does not require any javascript to run, which means that we can apply a similar pattern as before!
+    """
+    )
+    return
+
+
+@app.cell
+def _():
+    import altair as alt
+    from mofresh import refresh_altair, SVGRefreshWidget, altair2svg
+    return SVGRefreshWidget, alt, refresh_altair
 
 
 @app.cell
@@ -185,12 +141,25 @@ def _(SVGRefreshWidget, alt, mo, np, pl, refresh_altair):
 
 
 @app.cell
+def _(mo):
+    mo.md(r"""Unlike matplotlib charts though, altair is actually designed to give you objects back. That means that you don't need to use a decorated function for the update, you can also just convert the altair chart to SVG directly. This library supports utilities for both patterns. """)
+    return
+
+
+@app.cell
 def _(altair_cumsum_chart, random, svg_widget, time):
+    from mohtml import p
+
     more_data = [random.random() - 0.5 for _ in range(10)]
 
     for _i in range(10):
         more_data += [random.random() - 0.5]
-        svg_widget.svg = altair_cumsum_chart(more_data)
+        svg_widget.html = altair_cumsum_chart(more_data)
+        time.sleep(0.1)
+
+    for _i in range(10):
+        more_data += [random.random() - 0.5]
+        svg_widget.html = altair_cumsum_chart(more_data)
         time.sleep(0.1)
     return
 

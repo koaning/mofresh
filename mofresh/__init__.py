@@ -38,17 +38,17 @@ def altair2svg(chart):
 class SVGRefreshWidget(anywidget.AnyWidget):
     _esm = """
     function render({ model, el }) {
-      let elem = () => model.get("svg");
+      let elem = () => model.get("html");
       let div = document.createElement("div");
       div.innerHTML = elem();
-      model.on("change:svg", () => {
+      model.on("change:html", () => {
         div.innerHTML = elem();
       });
       el.appendChild(div);
     }
     export default { render };
     """
-    svg = traitlets.Unicode().tag(sync=True)
+    html = traitlets.Unicode().tag(sync=True)
 
 
 def refresh_matplotlib(func):
