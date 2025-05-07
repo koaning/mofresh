@@ -25,3 +25,4 @@ jobs:
         uv venv --python ${{ matrix.python-version }}
         make install
         make test
+        uv run python demo.py
