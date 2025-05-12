@@ -24,5 +24,6 @@ jobs:
         pip install --upgrade uv
         uv venv --python ${{ matrix.python-version }}
         make install
+        uv pip install -e ".[alt]"
         make test
         uv run python demo.py
