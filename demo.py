@@ -78,10 +78,10 @@ def _(mo):
 
 
 @app.cell
-def _(cumsum_linechart, mo):
+def _(cumsum_linechart):
     from mofresh import ImageRefreshWidget
 
-    widget = mo.ui.anywidget(ImageRefreshWidget(src=cumsum_linechart([1,2,3,4])))
+    widget = ImageRefreshWidget(src=cumsum_linechart([1,2,3,4]))
     widget
     return (widget,)
 
@@ -93,10 +93,14 @@ def _(mo):
 
 
 @app.cell
-def _(cumsum_linechart, widget):
+def _():
     import random 
     import time 
+    return random, time
 
+
+@app.cell
+def _(cumsum_linechart, random, time, widget):
     data = [random.random() - 0.5]
 
     for i in range(20):
@@ -104,7 +108,7 @@ def _(cumsum_linechart, widget):
         # This one line over here causes the update!
         widget.src = cumsum_linechart(data)
         time.sleep(0.2)
-    return random, time
+    return
 
 
 @app.cell
@@ -128,15 +132,19 @@ def _():
 
 @app.cell
 def _(HTMLRefreshWidget, alt, mo, np, pl, refresh_altair):
-    @refresh_altair
-    def altair_cumsum_chart(data):
-        df = pl.DataFrame({
-            "x": range(len(data)), "y": np.array(data).cumsum()
-        })
-        return alt.Chart(df).mark_line().encode(x="x", y="y")
+    _out = mo.md("This demo does not work on WASM on Github pages, it should locally though!")
 
-    svg_widget = mo.ui.anywidget(HTMLRefreshWidget(html=altair_cumsum_chart([1, 2])))
-    svg_widget
+    if "github" not in mo.app_meta().request.headers['host']:
+        @refresh_altair
+        def altair_cumsum_chart(data):
+            df = pl.DataFrame({
+                "x": range(len(data)), "y": np.array(data).cumsum()
+            })
+            return alt.Chart(df).mark_line().encode(x="x", y="y")
+    
+        svg_widget = HTMLRefreshWidget(html=altair_cumsum_chart([1, 2]))
+        _out = svg_widget
+    _out
     return altair_cumsum_chart, svg_widget
 
 
@@ -147,20 +155,21 @@ def _(mo):
 
 
 @app.cell
-def _(altair_cumsum_chart, random, svg_widget, time):
+def _(altair_cumsum_chart, mo, random, svg_widget, time):
     from mohtml import p
 
     more_data = [random.random() - 0.5 for _ in range(10)]
 
-    for _i in range(10):
-        more_data += [random.random() - 0.5]
-        svg_widget.html = altair_cumsum_chart(more_data)
-        time.sleep(0.1)
-
-    for _i in range(10):
-        more_data += [random.random() - 0.5]
-        svg_widget.html = altair_cumsum_chart(more_data)
-        time.sleep(0.1)
+    if "github" not in mo.app_meta().request.headers['host']:
+        for _i in range(10):
+            more_data += [random.random() - 0.5]
+            svg_widget.html = altair_cumsum_chart(more_data)
+            time.sleep(0.1)
+    
+        for _i in range(10):
+            more_data += [random.random() - 0.5]
+            svg_widget.html = altair_cumsum_chart(more_data)
+            time.sleep(0.1)
     return
 
 
