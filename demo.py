@@ -25,7 +25,7 @@ def _():
     return mo, np, pl
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -57,7 +57,7 @@ def _(np):
     return (cumsum_linechart,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""The decorator takes the matplotlib image and turns it into a base64 encoded string that can be plotted by `<img>` tags in html. You can see this for yourself in the example below. The `img(src=...)` function call in `mohtml` is effectively a bit of syntactic sugar around `<img src="...">`.""")
     return
@@ -71,9 +71,9 @@ def _(cumsum_linechart):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""Having a static image is great, but we want dynamic images! That's where our `ImageRefreshWidget` comes in.""")
+    mo.md(r"""Having a static image is great, but we want dynamic images! That's where our `ImageRefreshWidget` comes in. It allows you to trigger a streaming update to an image by running code from another cell. Try it out below!""")
     return
 
 
@@ -87,19 +87,6 @@ def _(cumsum_linechart):
 
 
 @app.cell
-def _(mo):
-    mo.md(r"""When you re-run the cell below you should see that the widget updates. This works because the widget knows how to respond to a change to the `widget.src` property. You only need to make sure that you pass along a base64 string that html images can handle, which is covered by the decorator that we applied earlier.""")
-    return
-
-
-@app.cell
-def _():
-    import random 
-    import time 
-    return random, time
-
-
-@app.cell
 def _(cumsum_linechart, random, time, widget):
     data = [random.random() - 0.5]
 
@@ -108,6 +95,12 @@ def _(cumsum_linechart, random, time, widget):
         # This one line over here causes the update!
         widget.src = cumsum_linechart(data)
         time.sleep(0.2)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""When you re-run the cell below you should see that the widget updates. This works because the widget knows how to respond to a change to the `widget.src` property. You only need to make sure that you pass along a base64 string that html images can handle, which is covered by the decorator that we applied earlier.""")
     return
 
 
@@ -134,21 +127,21 @@ def _():
 def _(HTMLRefreshWidget, alt, mo, np, pl, refresh_altair):
     _out = mo.md("This demo does not work on WASM on Github pages, it should locally though!")
 
-    if "github" not in mo.app_meta().request.headers['host']:
+    if mo.app_meta().request:
         @refresh_altair
         def altair_cumsum_chart(data):
             df = pl.DataFrame({
                 "x": range(len(data)), "y": np.array(data).cumsum()
             })
             return alt.Chart(df).mark_line().encode(x="x", y="y")
-    
+
         svg_widget = HTMLRefreshWidget(html=altair_cumsum_chart([1, 2]))
         _out = svg_widget
     _out
     return altair_cumsum_chart, svg_widget
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""Unlike matplotlib charts though, altair is actually designed to give you objects back. That means that you don't need to use a decorated function for the update, you can also just convert the altair chart to SVG directly. This library supports utilities for both patterns.""")
     return
@@ -160,12 +153,12 @@ def _(altair_cumsum_chart, mo, random, svg_widget, time):
 
     more_data = [random.random() - 0.5 for _ in range(10)]
 
-    if "github" not in mo.app_meta().request.headers['host']:
+    if mo.app_meta().request:
         for _i in range(10):
             more_data += [random.random() - 0.5]
             svg_widget.html = altair_cumsum_chart(more_data)
             time.sleep(0.1)
-    
+
         for _i in range(10):
             more_data += [random.random() - 0.5]
             svg_widget.html = altair_cumsum_chart(more_data)
@@ -173,7 +166,7 @@ def _(altair_cumsum_chart, mo, random, svg_widget, time):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -200,10 +193,17 @@ def _(html_widget, time):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""Enjoy!""")
     return
+
+
+@app.cell
+def _():
+    import random 
+    import time 
+    return random, time
 
 
 if __name__ == "__main__":
