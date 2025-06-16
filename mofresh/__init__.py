@@ -5,6 +5,7 @@ __version__ = importlib.metadata.version("mofresh")
 import io 
 import base64
 import anywidget
+import matplotlib
 import matplotlib.pylab as plt 
 import traitlets
 from tempfile import TemporaryDirectory
