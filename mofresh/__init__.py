@@ -11,6 +11,9 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 
 
+matplotlib.use('Agg')
+
+
 class ImageRefreshWidget(anywidget.AnyWidget):
     _esm = """
     function render({ model, el }) {
