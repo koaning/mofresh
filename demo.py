@@ -13,7 +13,7 @@
 
 import marimo
 
-__generated_with = "0.13.6"
+__generated_with = "0.14.0"
 app = marimo.App(width="medium")
 
 
@@ -112,7 +112,7 @@ def _(mo):
 
     This library can also deal with altair charts. This works by turning the chart into an SVG. This is a static representation that does not require any javascript to run, which means that we can apply a similar pattern as before!
 
-    > Due to a required dependency to convert the altair chart to SVG we cannot run the altair demo in WASM. This code will run just fine locally on your machine but currently breaks on the Github pages deployment. 
+    > Due to a required dependency to convert the altair chart to SVG we cannot run the altair demo in WASM. This code will run just fine locally on your machine but currently breaks on the Github pages deployment.
     """
     )
     return
@@ -192,6 +192,37 @@ def _(html_widget, time):
     for _i in range(10):
         html_widget.html = f"<p>Counting {_i}</p>"
         time.sleep(0.1)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""## Progress bars""")
+    return
+
+
+@app.cell
+def _():
+    from mofresh import ProgressBar
+
+    progress = ProgressBar(value=0, max_value=100)
+    progress
+    return (progress,)
+
+
+@app.cell
+def _(progress, random, time):
+    from threading import Lock
+    from collections import deque
+
+    def slow_task():
+        """Simulated task that takes time"""
+        time.sleep(random.random())
+
+    progress.value = 0 
+    for _ in range(100):
+        slow_task()
+        progress.value += 1
     return
 
 
