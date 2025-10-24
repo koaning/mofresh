@@ -90,12 +90,6 @@ class ProgressBar(anywidget.AnyWidget):
         let getValue = () => model.get("value");
         let getMaxValue = () => model.get("max_value");
 
-        // Check for dark mode via marimo's body class or system preference
-        const checkDarkMode = () => {
-            return document.body.classList.contains('dark') ||
-                   (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        };
-
         const container = document.createElement('div');
         container.style.width = '100%';
         container.style.marginBottom = '10px';
@@ -106,6 +100,7 @@ class ProgressBar(anywidget.AnyWidget):
         label.style.marginBottom = '8px';
         label.style.fontSize = '13px';
         label.style.fontWeight = '500';
+        label.style.color = '#666';
 
         // Progress bar container
         const barContainer = document.createElement('div');
@@ -113,6 +108,9 @@ class ProgressBar(anywidget.AnyWidget):
         barContainer.style.height = '24px';
         barContainer.style.borderRadius = '12px';
         barContainer.style.overflow = 'hidden';
+        barContainer.style.backgroundColor = '#e0e0e0';
+        barContainer.style.border = '1px solid #ccc';
+        barContainer.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.1)';
 
         // Progress fill
         const fill = document.createElement('div');
@@ -121,6 +119,8 @@ class ProgressBar(anywidget.AnyWidget):
         fill.style.display = 'flex';
         fill.style.alignItems = 'center';
         fill.style.justifyContent = 'center';
+        fill.style.background = 'linear-gradient(90deg, #888 0%, #777 100%)';
+        fill.style.boxShadow = '0 0 10px rgba(0,0,0,0.2)';
 
         // Percentage text
         const text = document.createElement('span');
@@ -129,20 +129,6 @@ class ProgressBar(anywidget.AnyWidget):
         text.style.color = 'white';
         text.style.textShadow = '0 1px 2px rgba(0,0,0,0.3)';
         text.style.letterSpacing = '0.5px';
-
-        const applyTheme = () => {
-            const isDarkMode = checkDarkMode();
-            label.style.color = isDarkMode ? '#e0e0e0' : '#333';
-            barContainer.style.backgroundColor = isDarkMode ? '#2a2a2a' : '#f0f0f0';
-            barContainer.style.border = isDarkMode ? '1px solid #404040' : '1px solid #d0d0d0';
-            barContainer.style.boxShadow = isDarkMode ? 'inset 0 1px 3px rgba(0,0,0,0.3)' : 'inset 0 1px 3px rgba(0,0,0,0.1)';
-            fill.style.background = isDarkMode
-                ? 'linear-gradient(90deg, #5cb85c 0%, #4cae4c 100%)'
-                : 'linear-gradient(90deg, #66d966 0%, #4caf50 100%)';
-            fill.style.boxShadow = isDarkMode
-                ? '0 0 10px rgba(76, 174, 76, 0.3)'
-                : '0 0 10px rgba(76, 175, 80, 0.3)';
-        };
 
         const updateDisplay = () => {
             const value = getValue();
@@ -162,20 +148,10 @@ class ProgressBar(anywidget.AnyWidget):
         container.appendChild(label);
         container.appendChild(barContainer);
 
-        applyTheme();
         updateDisplay();
 
         model.on('change:value', updateDisplay);
         model.on('change:max_value', updateDisplay);
-
-        // Listen for dark mode changes (both system and marimo)
-        if (window.matchMedia) {
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
-        }
-
-        // Watch for marimo dark mode class changes
-        const observer = new MutationObserver(applyTheme);
-        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
         el.appendChild(container);
     }

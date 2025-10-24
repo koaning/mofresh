@@ -13,8 +13,8 @@
 
 import marimo
 
-__generated_with = "0.17.0"
-app = marimo.App(width="medium")
+__generated_with = "0.13.6"
+app = marimo.App()
 
 
 @app.cell
@@ -202,6 +202,20 @@ def _(mo):
 
 
 @app.cell
+def _(mo, time):
+    with mo.status.progress_bar(
+        title="very important",
+        subtitle="really, it's true!",
+        completion_title="done!", 
+        total=25
+    ) as bar:
+        for _i in range(25):
+            time.sleep(0.1)
+            bar.update()
+    return
+
+
+@app.cell
 def _():
     from mofresh import ProgressBar
 
@@ -212,12 +226,9 @@ def _():
 
 @app.cell
 def _(progress, random, time):
-    from threading import Lock
-    from collections import deque
-
     def slow_task():
         """Simulated task that takes time"""
-        time.sleep(random.random())
+        time.sleep(random.random() / 10)
 
     progress.value = 0 
     for _ in range(100):
