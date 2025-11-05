@@ -16,6 +16,15 @@ matplotlib.use('Agg')
 
 
 class ImageRefreshWidget(anywidget.AnyWidget):
+    """A widget that displays an image and refreshes when the source changes.
+
+    This widget creates an image element that automatically updates whenever
+    the `src` attribute is modified, making it ideal for displaying dynamically
+    generated images in Jupyter notebooks.
+
+    Attributes:
+        src (str): The image source, typically a base64-encoded data URI.
+    """
     _esm = """
     function render({ model, el }) {
       let src = () => model.get("src");
@@ -32,6 +41,18 @@ class ImageRefreshWidget(anywidget.AnyWidget):
 
 
 def altair2svg(chart):
+    """Convert an Altair chart to SVG format.
+
+    Args:
+        chart: An Altair chart object.
+
+    Returns:
+        str: The SVG representation of the chart as a string.
+
+    Note:
+        This function writes to disk temporarily as Altair doesn't provide
+        an in-memory API for SVG conversion.
+    """
     # Need to write to disk to get SVG, filetype determines how to store it
     # have not found an api in altair that can return a variable in memory
     with TemporaryDirectory() as tmp_dir:
@@ -40,6 +61,15 @@ def altair2svg(chart):
 
 
 class HTMLRefreshWidget(anywidget.AnyWidget):
+    """A widget that displays HTML content and refreshes when it changes.
+
+    This widget creates a div element that automatically updates whenever
+    the `html` attribute is modified, making it ideal for displaying dynamically
+    generated HTML content like SVG charts in Jupyter notebooks.
+
+    Attributes:
+        html (str): The HTML content to display.
+    """
     _esm = """
     function render({ model, el }) {
       let elem = () => model.get("html");
@@ -56,6 +86,25 @@ class HTMLRefreshWidget(anywidget.AnyWidget):
 
 
 def refresh_matplotlib(func):
+    """Decorator to convert matplotlib plotting functions to base64-encoded images.
+
+    This decorator wraps a matplotlib plotting function and returns a base64-encoded
+    data URI that can be used with ImageRefreshWidget for live updates.
+
+    Args:
+        func: A function that creates matplotlib plots using plt commands.
+
+    Returns:
+        callable: A wrapper function that returns a base64-encoded JPEG data URI.
+
+    Example:
+        >>> @refresh_matplotlib
+        ... def plot_sine(x):
+        ...     plt.plot(x, np.sin(x))
+        ...
+        >>> widget = ImageRefreshWidget()
+        >>> widget.src = plot_sine(np.linspace(0, 2*np.pi, 100))
+    """
     def wrapper(*args, **kwargs):
         # Reset the figure to prevent accumulation. Maybe we need a setting for this?
         fig = plt.figure()
@@ -77,6 +126,25 @@ def refresh_matplotlib(func):
 
 
 def refresh_altair(func):
+    """Decorator to convert Altair chart functions to SVG strings.
+
+    This decorator wraps a function that returns an Altair chart and converts
+    the chart to an SVG string that can be used with HTMLRefreshWidget for live updates.
+
+    Args:
+        func: A function that returns an Altair chart object.
+
+    Returns:
+        callable: A wrapper function that returns an SVG string representation of the chart.
+
+    Example:
+        >>> @refresh_altair
+        ... def create_chart(data):
+        ...     return alt.Chart(data).mark_bar().encode(x='x', y='y')
+        ...
+        >>> widget = HTMLRefreshWidget()
+        >>> widget.html = create_chart(df)
+    """
     def wrapper(*args, **kwargs):
         # Run function as normal
         altair_chart = func(*args, **kwargs)
@@ -85,6 +153,23 @@ def refresh_altair(func):
 
 
 class ProgressBar(anywidget.AnyWidget):
+    """A customizable progress bar widget for Jupyter notebooks.
+
+    This widget displays a visual progress bar that updates in real-time as
+    the `value` attribute changes. It shows both a graphical representation
+    and a numerical indicator (percentage and fraction).
+
+    Attributes:
+        value (int): The current progress value. Defaults to 0.
+        max_value (int): The maximum value representing 100% completion. Defaults to 100.
+
+    Example:
+        >>> progress = ProgressBar()
+        >>> progress.max_value = 100
+        >>> for i in range(101):
+        ...     progress.value = i
+        ...     time.sleep(0.1)
+    """
     _esm = """
     function render({ model, el }) {
         let getValue = () => model.get("value");
